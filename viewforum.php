@@ -18,6 +18,59 @@ $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 if ($id < 1)
 	message($lang_common['Bad request'], false, '404 Not Found');
 
+$user_order_by_raw = isset($_GET['order_by']) ? $_GET['order_by'] : "";
+$user_order_by = "";
+$order_direction = "";
+
+$sorting = "";
+$direction = "";
+
+$url_sort = '';
+$url_direction = '';
+
+if ($user_order_by_raw == "views")
+{
+	$url_sort = $user_order_by_raw;
+	$user_order_by = "num_views";
+}
+else if ($user_order_by_raw == "replies")
+{
+	$url_sort = $user_order_by_raw;
+	$user_order_by = "num_replies";
+}
+else if ($user_order_by_raw == "posted")
+{
+	$url_sort = $user_order_by_raw;
+	$user_order_by = "posted";
+}
+else if ($user_order_by_raw == "last_post")
+{
+	$url_sort = $user_order_by_raw;
+	$user_order_by = "last_post";
+}
+else if ($user_order_by_raw == "title")
+{
+	$url_sort = $user_order_by_raw;
+	$user_order_by = "subject";
+}
+
+if ($user_order_by != "")
+{
+	$direction_raw = isset($_GET['direction']) ? $_GET['direction'] : "";
+	if ($direction_raw == "" || $direction_raw == "desc")
+	{
+		if ($direction_raw == "desc")		
+			$url_direction = "desc";
+
+		$order_direction = "DESC";
+	}
+	else if ($direction_raw == "asc")
+	{
+		$url_direction = "asc";
+		$order_direction = "ASC";
+	}
+}
+
 // Load the viewforum.php language file
 require PUN_ROOT.'lang/'.$pun_user['language'].'/forum.php';
 
@@ -43,21 +96,52 @@ if ($cur_forum['redirect_url'] != '')
 $mods_array = ($cur_forum['moderators'] != '') ? unserialize($cur_forum['moderators']) : array();
 $is_admmod = ($pun_user['g_id'] == PUN_ADMIN || ($pun_user['g_moderator'] == '1' && array_key_exists($pun_user['username'], $mods_array))) ? true : false;
 
-switch ($cur_forum['sort_by'])
+if ($user_order_by != "")
 {
-	case 0:
-		$sort_by = 'last_post DESC';
-		break;
-	case 1:
-		$sort_by = 'posted DESC';
-		break;
-	case 2:
-		$sort_by = 'subject ASC';
-		break;
-	default:
-		$sort_by = 'last_post DESC';
-		break;
+	$sort_by = $user_order_by . " " . $order_direction;
+	$sorting = $user_order_by;
+	$direction = $order_direction;
 }
+else
+{
+	switch ($cur_forum['sort_by'])
+	{
+		case 0:
+			$sort_by = 'last_post DESC';
+			$sorting = 'last_post';
+			$direction = 'DESC';
+			break;
+		case 1:
+			$sort_by = 'posted DESC';
+			$sorting = 'posted';
+			$direction = 'DESC';
+			break;
+		case 2:
+			$sort_by = 'subject ASC';
+			$sorting = 'subject';
+			$direction = 'ASC';
+			break;
+		default:
+			$sort_by = 'last_post DESC';
+			$sorting = 'last_post';
+			$direction = 'DESC';			
+			break;
+	}
+}
+
+$sort_direction_url = '';
+$sort_symbol = '';
+
+if ($direction == 'DESC')
+{
+	$sort_direction_url = '&direction=asc';
+	$sort_symbol = json_decode('"\u2193"');	
+}
+else if ($direction == 'ASC')
+{
+	$sort_direction_url = '&direction=desc';
+	$sort_symbol = json_decode('"\u2191"');	
+}	
 
 // Can we or can we not post new topics?
 if (($cur_forum['post_topics'] == '' && $pun_user['g_post_topics'] == '1') || $cur_forum['post_topics'] == '1' || $is_admmod)
@@ -75,8 +159,14 @@ $num_pages = ceil($cur_forum['num_topics'] / $pun_user['disp_topics']);
 $p = (!isset($_GET['p']) || $_GET['p'] <= 1 || $_GET['p'] > $num_pages) ? 1 : intval($_GET['p']);
 $start_from = $pun_user['disp_topics'] * ($p - 1);
 
+$sort_by_title_link = '<a href="viewforum.php?id='.$id.($p == 1 ? '' : '&amp;p='.$p).'&order_by=title' . ($sorting == 'subject' ? $sort_direction_url : '') .'">' . $lang_common['Topic'] . ($sorting == 'subject' ? $sort_symbol : '') . '</a>';
+$sort_by_replies_link = '<a href="viewforum.php?id='.$id.($p == 1 ? '' : '&amp;p='.$p).'&order_by=replies' . ($sorting == 'num_replies' ? $sort_direction_url : '') .'">' . $lang_common['Replies'] . ($sorting == 'num_replies' ? $sort_symbol : '') . '</a>';
+$sort_by_views_link = '<a href="viewforum.php?id='.$id.($p == 1 ? '' : '&amp;p='.$p).'&order_by=views' . ($sorting == 'num_views' ? $sort_direction_url : '') .'">' . $lang_forum['Views'] . ($sorting == 'num_views' ? $sort_symbol : '') . '</a>';
+$sort_by_last_post_link = '<a href="viewforum.php?id='.$id.($p == 1 ? '' : '&amp;p='.$p).'&order_by=last_post' . ($sorting == 'last_post' ? $sort_direction_url : '') .'">' . $lang_common['Last post'] . ($sorting == 'last_post' ? $sort_symbol : '') . '</a>';
+//$sort_by_posted_link = '<a href="viewforum.php?id='.$id.'&order_by=views' . ($sorting == 'posted' ? $sort_direction_url : '') .'">' . "Post date" . $sorting == 'posted' ? $sort_symbol : '' . '</a>';
+
 // Generate paging links
-$paging_links = '<span class="pages-label">'.$lang_common['Pages'].' </span>'.paginate($num_pages, $p, 'viewforum.php?id='.$id);
+$paging_links = '<span class="pages-label">'.$lang_common['Pages'].' </span>'.paginate($num_pages, $p, 'viewforum.php?id='.$id.($url_sort != '' ? '&order_by='.$url_sort : '').($url_direction != '' ? '&direction='.$url_direction : ''));
 
 // Add relationship meta tags
 $page_head = array();
@@ -139,10 +229,10 @@ require PUN_ROOT.'header.php';
 			<table>
 			<thead>
 				<tr>
-					<th class="tcl" scope="col"><?php echo $lang_common['Topic'] ?></th>
-					<th class="tc2" scope="col"><?php echo $lang_common['Replies'] ?></th>
-<?php if ($pun_config['o_topic_views'] == '1'): ?>					<th class="tc3" scope="col"><?php echo $lang_forum['Views'] ?></th>
-<?php endif; ?>					<th class="tcr" scope="col"><?php echo $lang_common['Last post'] ?></th>
+					<th class="tcl" scope="col"><?php echo $sort_by_title_link ?></th>
+					<th class="tc2" scope="col"><?php echo $sort_by_replies_link ?></th>
+<?php if ($pun_config['o_topic_views'] == '1'): ?>					<th class="tc3" scope="col"><?php echo $sort_by_views_link ?></th>
+<?php endif; ?>					<th class="tcr" scope="col"><?php echo $sort_by_last_post_link ?></th>
 				</tr>
 			</thead>
 			<tbody>
