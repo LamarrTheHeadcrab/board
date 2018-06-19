@@ -56,18 +56,21 @@ else if ($user_order_by_raw == "title")
 
 if ($user_order_by != "")
 {
-	$direction_raw = isset($_GET['direction']) ? $_GET['direction'] : "";
-	if ($direction_raw == "" || $direction_raw == "desc")
-	{
-		if ($direction_raw == "desc")		
-			$url_direction = "desc";
-
+	$direction_raw = isset($_GET['direction']) ? $_GET['direction'] : "desc";
+	if ($direction_raw == "desc")
+	{	
+		$url_direction = "desc";
 		$order_direction = "DESC";
 	}
 	else if ($direction_raw == "asc")
 	{
 		$url_direction = "asc";
 		$order_direction = "ASC";
+	}
+	else 
+	{
+		$url_direction = "desc";
+		$order_direction = "DESC";
 	}
 }
 
