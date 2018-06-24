@@ -166,7 +166,7 @@ $sort_by_title_link = '<a href="viewforum.php?id='.$id.($p == 1 ? '' : '&amp;p='
 $sort_by_replies_link = '<a href="viewforum.php?id='.$id.($p == 1 ? '' : '&amp;p='.$p).'&order_by=replies' . ($sorting == 'num_replies' ? $sort_direction_url : '') .'">' . $lang_common['Replies'] . ($sorting == 'num_replies' ? $sort_symbol : '') . '</a>';
 $sort_by_views_link = '<a href="viewforum.php?id='.$id.($p == 1 ? '' : '&amp;p='.$p).'&order_by=views' . ($sorting == 'num_views' ? $sort_direction_url : '') .'">' . $lang_forum['Views'] . ($sorting == 'num_views' ? $sort_symbol : '') . '</a>';
 $sort_by_last_post_link = '<a href="viewforum.php?id='.$id.($p == 1 ? '' : '&amp;p='.$p).'&order_by=last_post' . ($sorting == 'last_post' ? $sort_direction_url : '') .'">' . $lang_common['Last post'] . ($sorting == 'last_post' ? $sort_symbol : '') . '</a>';
-//$sort_by_posted_link = '<a href="viewforum.php?id='.$id.'&order_by=views' . ($sorting == 'posted' ? $sort_direction_url : '') .'">' . "Post date" . $sorting == 'posted' ? $sort_symbol : '' . '</a>';
+$sort_by_posted_link = '<a href="viewforum.php?id='.$id.'&order_by=posted' . ($sorting == 'posted' ? $sort_direction_url : '') .'">' . $lang_forum['Posted'] . ($sorting == 'posted' ? $sort_symbol : '') . '</a>';
 
 // Generate paging links
 $paging_links = '<span class="pages-label">'.$lang_common['Pages'].' </span>'.paginate($num_pages, $p, 'viewforum.php?id='.$id.($url_sort != '' ? '&order_by='.$url_sort : '').($url_direction != '' ? '&direction='.$url_direction : ''));
@@ -235,7 +235,11 @@ require PUN_ROOT.'header.php';
 					<th class="tcl" scope="col"><?php echo $sort_by_title_link ?></th>
 					<th class="tc2" scope="col"><?php echo $sort_by_replies_link ?></th>
 <?php if ($pun_config['o_topic_views'] == '1'): ?>					<th class="tc3" scope="col"><?php echo $sort_by_views_link ?></th>
-<?php endif; ?>					<th class="tcr" scope="col"><?php echo $sort_by_last_post_link ?></th>
+<?php endif; ?>					
+<th class="tc4" scope="col">
+<?php echo $sort_by_posted_link ?>
+</th>
+<th class="tcr" scope="col"><?php echo $sort_by_last_post_link ?></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -351,7 +355,13 @@ if ($db->num_rows($result))
 					</td>
 					<td class="tc2"><?php echo (is_null($cur_topic['moved_to'])) ? forum_number_format($cur_topic['num_replies']) : '-' ?></td>
 <?php if ($pun_config['o_topic_views'] == '1'): ?>					<td class="tc3"><?php echo (is_null($cur_topic['moved_to'])) ? forum_number_format($cur_topic['num_views']) : '-' ?></td>
-<?php endif; ?>					<td class="tcr"><?php echo $last_post ?></td>
+<?php endif; ?>	
+<td class="tc4">
+<?php 
+	echo format_time($cur_topic['posted']);
+?>
+</td>
+<td class="tcr"><?php echo $last_post ?></td>
 				</tr>
 <?php
 
