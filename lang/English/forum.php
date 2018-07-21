@@ -12,6 +12,6 @@ $lang_forum = array(
 'Mod controls'	=>	'Moderator controls',
 'Is subscribed'	=>	'You are currently subscribed to this forum',
 'Unsubscribe'	=>	'Unsubscribe',
-'Subscribe'		=>	'Subscribe to this forum',
-'Posted'        =>  'Posted'
+'Subscribe'		=>	'Subscribe to this forum'
+
 );

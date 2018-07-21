@@ -572,7 +572,7 @@ html, body, .pun table, .pun div, .pun form, .pun p, .pun h1, .pun h2, .pun h3, 
 	width: auto;
 }
 
-.pun .blocktable .tc2, .pun .blocktable .tc3, .pun .blocktable .tc4, .pun .blocktable .tcmod {
+.pun .blocktable .tc2, .pun .blocktable .tc3, .pun .blocktable .tcmod {
 	padding-left: 0;
 	padding-right: 0;
 	text-align: center;
@@ -580,7 +580,7 @@ html, body, .pun table, .pun div, .pun form, .pun p, .pun h1, .pun h2, .pun h3, 
 }
 
 .pun .blocktable .tcr {
-	width: 20%;
+	width: 30%;
 }
 
 .pun .blocktable td .newtext, .pun .blocktable td .pagestext, .pun .blocktable td .byuser {
